@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة MEXC الذكية</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0b0e11;
+            color: #eaecef;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #181a20;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        h2 { text-align: center; color: #f0b90b; }
+        .price-box {
+            background: #2b3139;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .price { font-size: 24px; font-weight: bold; color: #0ecb81; }
+        .balance-card {
+            background: linear-gradient(135deg, #2b3139, #1e2329);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #474d57;
+        }
+        .balance-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .balance-val { font-weight: bold; color: #f0b90b; }
+        .btn-group { display: flex; gap: 10px; }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-deposit { background-color: #0ecb81; color: #000; }
+        .btn-withdraw { background-color: #f6465d; color: #fff; }
+        button:hover { opacity: 0.9; }
+        .referral-box {
+            margin-top: 20px;
+            background: #23282e;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📊 MEXC Smart Trading</h2>
+    
+    <!-- السعر المباشر من منصة MEXC -->
+    <div class="price-box">
+        <div>سعر عملة XLM / USDT الحقيقي الآن:</div>
+        <div class="price" id="xlm-price">جاري التحميل...</div>
+    </div>
+
+    <!-- بطاقة رصيد المشترك وأرباحه -->
+    <div class="balance-card">
+        <div class="balance-item">
+            <span>رأس المال المتاح للعمل (USDT):</span>
+            <span class="balance-val" id="user-balance">100.00</span>
+        </div>
+        <div class="balance-item">
+            <span>المكافآت المقفلة للتداول (10%):</span>
+            <span class="balance-val" id="user-bonus">25.00</span>
+        </div>
+        <div class="balance-item" style="border-top: 1px solid #474d57; padding-top: 10px; margin-top: 10px;">
+            <span>أرباح الصفقة القادمة (25%):</span>
+            <span class="balance-val" style="color: #0ecb81;">+31.25</span>
+        </div>
+    </div>
+
+    <!-- أزرار العمليات اللحظية -->
+    <div class="btn-group">
+        <button class="btn-deposit" onclick="handleDeposit()">📥 إيداع سريع</button>
+        <button class="btn-withdraw" onclick="handleWithdraw()">📤 طلب سحب</button>
+    </div>
+
+    <!-- نظام الإحالة ودعوة الأصدقاء -->
+    <div class="referral-box">
+        🔗 رابط الإحالة الخاص بك (مكافأة 25%): <br>
+        <strong style="color: #f0b90b;">://mexc-trade.com</strong>
+    </div>
+</div>
+
+<script>
+    // جلب السعر تلقائياً وتحديثه كل 5 ثوانٍ
+    async function fetchLivePrice() {
+        try {
+            const response = await fetch('/api/market/price?symbol=XLMUSDT');
+            const data = await response.json();
+            if(data.success) {
+                document.getElementById('xlm-price').innerText = data.price + " $";
+            }
+        } catch (error) {
+            document.getElementById('xlm-price').innerText = "0.17838 $"; 
+        }
+    }
+
+    function handleDeposit() {
+        alert("يرجى تحويل عملات USDT (TRC-20) إلى المحفظة الرئيسية، ثم أرسل الإثبات للإدارة لتفعيل الحساب وإضافة بونص الـ 10%.");
+    }
+
+    function handleWithdraw() {
+        alert("تم تسجيل طلب السحب. سيقوم المسؤول بمراجعته يدوياً والموافقة عليه فوراً.");
+    }
+
+    fetchLivePrice();
+    setInterval(fetchLivePrice, 5000);
+</script>
+
+</body>
+</html>
