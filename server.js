@@ -3,35 +3,34 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// لوحة صفقاتك الخاصة التي تريد مشاركتها والتحكم بها مع الأصدقاء
+// قاعدة بيانات مؤقتة وآمنة في الذاكرة لتجربة الأرصدة
 let usersDatabase = {
-    "user77": { username: "user77", balance: 50.00, lockedBonus: 30.00, expectedProfit: 20.00 }
+    "user77": { username: "user77", balance: 50.00 }
 };
-let supportMessages = [];
 
-// جلب سعر عملة XLM الحقيقي من واجهة برمجية مفتوحة وعامة
-app.get('/api/market/price', (req, res) => {
-    res.json({ success: true, price: '0.17838', symbol: 'XLMUSDT' });
+// مسارات واجهة برمجة التطبيقات (API) الخاصة بالمحاكاة
+app.get('/api/user/data', (req, res) => {
+    const username = req.query.username || 'user77';
+    if (!usersDatabase[username]) {
+        usersDatabase[username] = { username, balance: 0 };
+    }
+    res.json(usersDatabase[username]);
 });
 
-// استقبال رسائل الدعم الفني من أصدقائك داخل التطبيق
-app.post('/api/support', (req, res) => {
-    const { message } = req.body;
-    supportMessages.push(message);
-    res.json({ success: true, message: "تم استلام رسالتك للدعم بنجاح" });
-});
-
-// فتح الواجهة الرئيسية
+// فتح الواجهات البرمجية
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Your safe trading simulator is running on port ${PORT}`);
+    console.log(`Simulation server active on port ${PORT}`);
 });
