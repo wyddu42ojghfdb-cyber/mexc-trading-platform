@@ -3,170 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة MEXC الذكية</title>
+    <title>تطبيق XXX للمحاكاة</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0b0e11;
-            color: #eaecef;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: #181a20;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-        h2 { text-align: center; color: #f0b90b; }
-        .price-box {
-            background: #2b3139;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .price { font-size: 24px; font-weight: bold; color: #0ecb81; }
-        .balance-card {
-            background: linear-gradient(135deg, #2b3139, #1e2329);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #474d57;
-        }
-        .balance-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        .balance-val { font-weight: bold; color: #f0b90b; }
-        .btn-group { display: flex; gap: 10px; }
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-deposit { background-color: #0ecb81; color: #000; }
-        .btn-withdraw { background-color: #f6465d; color: #fff; }
-        button:hover { opacity: 0.9; }
-        .referral-box {
-            margin-top: 20px;
-            background: #23282e;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            text-align: center;
-        }
-        .deposit-section {
-            display: none;
-            background: #21262c;
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 15px;
-            border: 1px dashed #0ecb81;
-            text-align: center;
-        }
-        .wallet-address {
-            background: #0b0e11;
-            padding: 10px;
-            border-radius: 6px;
-            word-break: break-all;
-            margin: 10px 0;
-            color: #f0b90b;
-            font-family: monospace;
-            font-size: 14px;
-        }
-        .btn-copy {
-            background: #474d57;
-            color: white;
-            padding: 5px 10px;
-            font-size: 12px;
-            border-radius: 4px;
-        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #121214; color: #ffffff; text-align: center; padding: 20px; margin: 0; }
+        .container { max-width: 450px; margin: 20px auto; background: #1a1a1e; padding: 25px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        h1 { color: #00e676; font-size: 26px; margin-bottom: 5px; }
+        .status-box { background: #24242b; padding: 15px; margin: 15px 0; border-radius: 12px; border-right: 6px solid #00e676; text-align: right; }
+        .balance-title { font-size: 14px; color: #aaaaaa; }
+        .balance-value { font-size: 24px; font-weight: bold; color: #ffffff; margin-top: 5px; }
+        .btn { background-color: #00e676; color: #000; border: none; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; }
+        .notice { font-size: 12px; color: #ff5252; margin-top: 20px; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h2>📊 MEXC Smart Trading</h2>
-    
-    <div class="price-box">
-        <div>سعر عملة XLM / USDT الحقيقي الآن:</div>
-        <div class="price" id="xlm-price">جاري التحميل...</div>
-    </div>
-
-    <div class="balance-card">
-        <div class="balance-item">
-            <span>رأس المال المتاح للعمل (USDT):</span>
-            <span class="balance-val" id="user-balance">100.00</span>
+    <div class="container">
+        <h1>🤖 تطبيق XXX الذكي</h1>
+        <p>مرحباً بك في واجهة محاكاة التداول التجريبية</p>
+        
+        <div class="status-box">
+            <div class="balance-title">الحساب التجريبي المتاح (Demo Balance)</div>
+            <div id="balance" class="balance-value">جاري التحميل...</div>
         </div>
-        <div class="balance-item">
-            <span>المكافآت المقفلة للتداول (10%):</span>
-            <span class="balance-val" id="user-bonus">25.00</span>
-        </div>
-        <div class="balance-item" style="border-top: 1px solid #474d57; padding-top: 10px; margin-top: 10px;">
-            <span>أرباح الصفقة القادمة (25%):</span>
-            <span class="balance-val" style="color: #0ecb81;">+31.25</span>
-        </div>
+
+        <button class="btn" onclick="sendSupport()">📱 مراسلة الدعم الفني</button>
+        
+        <p class="notice">⚠️ تنبيه: هذا التطبيق مخصص لأغراض التعليم ومحاكاة البرمجة فقط، ولا يقبل أي إيداعات أو معاملات مالية حقيقية.</p>
     </div>
 
-    <div class="btn-group">
-        <button class="btn-deposit" onclick="toggleDepositSection()">📥 إيداع سريع</button>
-        <button class="btn-withdraw" onclick="handleWithdraw()">📤 طلب سحب</button>
-    </div>
+    <script>
+        // جلب بيانات المستخدم التجريبي من السيرفر الخاص بك
+        fetch('/api/user/data?username=user77')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('balance').innerText = `$${data.balance.toFixed(2)}`;
+            })
+            .catch(() => {
+                document.getElementById('balance').innerText = '\$50.00';
+            });
 
-    <!-- 🟢 تم دمج محفظتك الحقيقية بنجاح هنا -->
-    <div id="deposit-area" class="deposit-section">
-        <p style="margin: 0 0 10px 0; font-size: 14px; color: #0ecb81;">⚠️ أرسل فقط USDT على شبكة TRC-20:</p>
-        <div class="wallet-address" id="my-wallet">TA1vsgrJEFy3YM6rkQWBppnZemFE6c9pBN</div>
-        <button class="btn-copy" onclick="copyWalletAddress()">📋 نسخ العنوان</button>
-        <p style="font-size: 12px; margin-top: 10px; color: #b7bdc6;">بعد التحويل، يرجى تقديم طلب الإيداع عبر لوحة الدعم الفني لتأكيد رصيدك وإضافة بونص الـ 10%.</p>
-    </div>
-
-    <div class="referral-box">
-        🔗 رابط الإحالة الخاص بك (مكافأة 25%): <br>
-        <strong style="color: #f0b90b;">://mexc-trade.com</strong>
-    </div>
-</div>
-
-<script>
-    async function fetchLivePrice() {
-        try {
-            const response = await fetch('/api/market/price?symbol=XLMUSDT');
-            const data = await response.json();
-            if(data.success) {
-                document.getElementById('xlm-price').innerText = data.price + " $";
-            }
-        } catch (error) {
-            document.getElementById('xlm-price').innerText = "0.17838 $"; 
+        function sendSupport() {
+            alert('تم فتح نافذة المراسلة مع المشرف بنجاح.');
         }
-    }
-
-    function toggleDepositSection() {
-        const area = document.getElementById('deposit-area');
-        area.style.display = (area.style.display === "block") ? "none" : "block";
-    }
-
-    function copyWalletAddress() {
-        const walletText = document.getElementById('my-wallet').innerText;
-        navigator.clipboard.writeText(walletText);
-        alert("تم نسخ عنوان المحفظة! يمكنك الآن تحويل USDT (TRC-20) إليها.");
-    }
-
-    function handleWithdraw() {
-        alert("تم تسجيل طلب السحب. سيقوم المسؤول بمراجعته يدوياً والموافقة عليه فوراً.");
-    }
-
-    fetchLivePrice();
-    setInterval(fetchLivePrice, 5000);
-</script>
-
+    </script>
 </body>
 </html>
