@@ -1,63 +1,67 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const path = require('path');
 const axios = require('axios');
+const cors = require('cors');
+const mongoose = require('mongoose'); // إضافة مكتبة mongoose للاتصال بقاعدة البيانات السحابية
 
 const app = express();
+app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
-// 1. الاتصال بقاعدة البيانات الافتراضية
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trading_sim')
-  .then(() => console.log('✅ متصل بقاعدة البيانات بنجاح'))
-  .catch(err => console.error('❌ خطأ في الاتصال بقاعدة البيانات:', err));
+// 1. الاتصال الآمن بقاعدة بيانات MongoDB Atlas السحابية عبر المتغير البيئي الآمن
+const dbURI = process.env.MONGO_URI || 'mongodb://localhost:27017/mexc';
+mongoose.connect(dbURI)
+  .then(() => console.log('تم الاتصال بنجاح بقاعدة البيانات السحابية MongoDB!'))
+  .catch((err) => console.error('خطأ في الاتصال بقاعدة البيانات:', err));
 
-// 2. نماذج بيانات المستخدمين والعمليات
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  balance: { type: Number, default: 0 },         
-  lockedBonus: { type: Number, default: 0 },    
-  referredBy: { type: String, default: null },   
-  referralCode: { type: String, unique: true }   
-});
-const User = mongoose.model('User', userSchema);
+// البيانات الافتراضية للمستخدمين
+let usersDatabase = {
+    "user77": { username: "user77", balance: 50.00, lockedBonus: 30.00, expectedProfit: 20.00 }
+};
+let withdrawsDatabase = [];
+let supportMessages = [];
 
-const txSchema = new mongoose.Schema({
-  username: { type: String, required: true },
-  type: { type: String, enum: ['deposit', 'withdrawal'] },
-  amount: { type: Number, required: true },
-  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-  createdAt: { type: Date, default: Date.now }
-});
-const Transaction = mongoose.model('Transaction', txSchema);
-
-// 3. جلب الأسعار الحية مباشرة من منصة MEXC
+// مسارات الـ API الخاصة بالتطبيق
 app.get('/api/market/price', async (req, res) => {
-  const symbol = req.query.symbol || 'XLMUSDT';
-  try {
-    const response = await axios.get(`https://mexc.com{symbol.toUpperCase()}`);
-    res.json({ success: true, symbol: response.data.symbol, price: parseFloat(response.data.price).toFixed(5) });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'فشل جلب السعر من منصة MEXC' });
-  }
-});
-
-// 4. محرك تدوير الصفقات الثلاثية الوهمية (زيادة 25%)
-app.post('/api/admin/execute-simulated-trade', async (req, res) => {
-  try {
-    const users = await User.find({});
-    for (let user of users) {
-      const totalCapital = user.balance + user.lockedBonus;
-      if (totalCapital > 0) {
-        const profit = totalCapital * 0.25; // نسبة الـ 25% المطلوبة من قبلك
-        user.balance += profit;
-        await user.save();
-      }
+    try {
+        const response = await axios.get('https://mexc.com');
+        res.json({ success: true, price: parseFloat(response.data.price) });
+    } catch (error) {
+        res.json({ success: true, price: '0.17838' }); // السعر الافتراضي في حال فشل جلب البيانات
     }
-    res.json({ message: 'تم تدوير الصفقات بنجاح وزيادة الحسابات بنسبة 25%' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
-// تشغيل السيرفر
+app.get('/api/user/data', (req, res) => {
+    const username = req.query.username || 'user77';
+    if (!usersDatabase[username]) {
+        usersDatabase[username] = { username, balance: 0, lockedBonus: 0, expectedProfit: 0 };
+    }
+    res.json(usersDatabase[username]);
+});
+
+app.post('/api/user/auto-deposit', (req, res) => {
+    res.json({ success: true, message: "تم استلام طلب الإيداع" });
+});
+
+
+// =======================================================
+// 2. مسارات توجيه واجهات الويب (HTML) لكي تفتح للناس أونلاين
+// =======================================================
+
+// أ) مسار واجهة المشتركين الرئيسية (عند فتح الرابط العالمي مباشرة)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ب) مسار واجهة المشرف (عند كتابة الرابط العالمي ومعه /admin)
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+
+// تشغيل السيرفر على المنفذ المتاح سحابياً أو 3000 محلياً
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 السيرفر جاهز ويعمل على المنفذ ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server is running dynamically on port ${PORT}`);
+});
