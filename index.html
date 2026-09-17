@@ -1,41 +1,83 @@
-<!-- زر الإيداع الفوري الأصلي مع دمج المحفظة الحقيقية -->
-<div style="text-align: center; margin-bottom: 15px;">
-    <button onclick="toggleDepositSection()" style="background-color: #2ecc71; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 48%; display: inline-block;">
+<!-- الأزرار الأصلية المدمجة في شبكة متناسقة وثابتة (Grid Layout) -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; padding: 0 15px;">
+    <!-- زر الإيداع فوري - يفتح نافذة الإيداع الاحترافية -->
+    <button onclick="openDepositModal()" style="background-color: #2ecc71; color: #ffffff; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2); transition: transform 0.2s;">
         📥 إيداع فوري
     </button>
     
-    <!-- زر طلب السحب الأصلي بجانبه كما كان -->
-    <button style="background-color: #e74c3c; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 48%; display: inline-block;">
+    <!-- زر طلب سحب -->
+    <button style="background-color: #e74c3c; color: #ffffff; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);">
         📤 طلب سحب
     </button>
 </div>
 
-<!-- قسم مخفي يظهر فقط عند ضغط أصدقائك على زر "إيداع فوري" -->
-<div id="realDepositSection" style="display: none; background-color: #1c1c1e; padding: 15px; border-radius: 8px; border: 1px solid #2ecc71; margin-top: 10px; text-align: center;">
-    <p style="color: #ffffff; font-size: 14px; margin-bottom: 8px;">حرك أموالك عبر شبكة <strong style="color: #2ecc71;">TRON (TRC-20)</strong>:</p>
-    <div id="walletAddress" style="background-color: #000; color: #2ecc71; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 14px; word-break: break-all; margin-bottom: 10px;">
-        TA1vsgrJEFy3YM6rkQWBppnZemFE6c9pBN
+<!-- ========================================== -->
+<!-- نافذة الإيداع العائمة الاحترافية (Popup Modal) -->
+<!-- ========================================== -->
+<div id="depositModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div style="background-color: #1c1c1e; width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; border: 1px solid #2ecc71; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; position: relative; animation: slideUp 0.3s ease-out;">
+        
+        <!-- زر إغلاق النافذة (X) -->
+        <span onclick="closeDepositModal()" style="position: absolute; top: 15px; right: 20px; color: #8e8e93; font-size: 22px; cursor: pointer; font-weight: bold;">&times;</span>
+        
+        <!-- شعار ومحتوى النافذة -->
+        <div style="margin-top: 5px;">
+            <div style="background: rgba(46, 204, 113, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                <span style="font-size: 28px;">💳</span>
+            </div>
+            <h3 style="color: #ffffff; margin: 0 0 8px 0; font-size: 19px; font-weight: bold;">بوابة الإيداع الفوري</h3>
+            <p style="color: #9a9a9f; font-size: 13px; margin: 0 0 20px 0; line-height: 1.4;">يرجى تحويل عملات الرقمية حصراً عبر شبكة:<br><strong style="color: #2ecc71; font-size: 14px;">TRON (TRC-20)</strong></p>
+        </div>
+
+        <!-- حقل عنوان المحفظة الذكي -->
+        <div style="text-align: right; margin-bottom: 8px;">
+            <label style="color: #8e8e93; font-size: 11px; font-weight: bold; margin-right: 5px;">عنوان محفظة الاستلام الخاص بك:</label>
+        </div>
+        <div id="walletAddress" style="background-color: #0b0b0c; color: #2ecc71; padding: 14px; border-radius: 10px; font-family: monospace; font-size: 13px; word-break: break-all; margin-bottom: 20px; border: 1px solid #2c2c2e; text-align: center; letter-spacing: 0.5px;">
+            TA1vsgrJEFy3YM6rkQWBppnZemFE6c9pBN
+        </div>
+
+        <!-- زر النسخ السريع المتفاعل -->
+        <button id="copyBtn" onclick="copyWalletAddress()" style="background-color: #2ecc71; color: #ffffff; border: none; padding: 14px 20px; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; transition: all 0.2s;">
+            📋 نسخ عنوان المحفظة
+        </button>
     </div>
-    <button onclick="copyWalletAddress()" style="background-color: #2ecc71; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer;">
-        📋 نسخ العنوان
-    </button>
 </div>
 
-<!-- السكريبت البرمجي للتحكم بالظهور والنسخ -->
+<!-- أنيميشن وسكريبت التحكم الفني والنسخ الذكي -->
+<style>
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+
 <script>
-function toggleDepositSection() {
-    var section = document.getElementById("realDepositSection");
-    if (section.style.display === "none") {
-        section.style.display = "block";
-    } else {
-        section.style.display = "none";
+// فتح نافذة الإيداع مع إدخال خاصية الـ Flex لعرضها في السنتر
+function openDepositModal() {
+    document.getElementById("depositModal").style.display = "flex";
+}
+
+// إغلاق النافذة
+function closeDepositModal() {
+    document.getElementById("depositModal").style.display = "none";
+}
+
+// إغلاق النافذة تلقائياً إذا ضغط المستخدم في أي مكان خارج الصندوق الأسود
+window.onclick = function(event) {
+    var modal = document.getElementById("depositModal");
+    if (event.target == modal) {
+        modal.style.display = "none";
     }
 }
 
+// دالة نسخ ذكية تغير نص الزر للتأكيد الاحترافي بدلاً من الـ alert المزعج
 function copyWalletAddress() {
     const addressText = document.getElementById("walletAddress").innerText.trim();
+    const btn = document.getElementById("copyBtn");
+    
     navigator.clipboard.writeText(addressText).then(() => {
-        alert("✅ تم نسخ عنوان محفظة TRC-20 بنجاح!");
+        triggerCopySuccess(btn);
     }).catch(err => {
         const el = document.createElement('textarea');
         el.value = addressText;
@@ -43,7 +85,16 @@ function copyWalletAddress() {
         el.select();
         document.execCommand('copy');
         document.body.removeChild(el);
-        alert("✅ تم نسخ عنوان محفظة TRC-20 بنجاح!");
+        triggerCopySuccess(btn);
     });
+}
+
+function triggerCopySuccess(btn) {
+    btn.style.backgroundColor = "#1abc9c";
+    btn.innerText = "✅ تم النسخ بنجاح!";
+    setTimeout(() => {
+        btn.style.backgroundColor = "#2ecc71";
+        btn.innerText = "📋 نسخ عنوان المحفظة";
+    }, 2500);
 }
 </script>
