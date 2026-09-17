@@ -2,54 +2,74 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة المشرف - إدارة رسائل XXX</title>
+    <title>لوحة المشرف - إدارة المحادثات</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #121214; color: #ffffff; padding: 20px; margin: 0; }
-        .container { max-width: 600px; margin: auto; background: #1a1a1e; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h1 { color: #00e676; border-bottom: 2px solid #24242b; padding-bottom: 10px; font-size: 22px; }
-        .msg-card { background: #24242b; padding: 15px; margin: 15px 0; border-radius: 10px; border-right: 5px solid #00e676; }
-        .time { font-size: 11px; color: #848e9c; float: left; }
-        .sender { font-weight: bold; color: #00e676; }
-        .text { margin-top: 8px; font-size: 15px; }
-        .btn-refresh { background: #24242b; color: #00e676; border: 1px solid #00e676; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 10px; width: 100%; }
+        body { background: #131722; color: white; font-family: sans-serif; padding: 20px; }
+        .chat-container { max-width: 500px; margin: 0 auto; background: #1c2030; border-radius: 8px; overflow: hidden; border: 1px solid #2a2e39; }
+        .chat-header { background: #1f5eff; padding: 15px; font-weight: bold; text-align: center; }
+        .messages { height: 300px; padding: 15px; overflow-y: auto; background: #131722; display: flex; flex-direction: column; gap: 10px; }
+        .user-msg { background: #02c076; align-self: flex-start; padding: 8px 12px; border-radius: 4px; max-width: 80%; }
+        .admin-msg { background: #1f5eff; align-self: flex-end; padding: 8px 12px; border-radius: 4px; max-width: 80%; }
+        .input-area { display: flex; border-top: 1px solid #2a2e39; }
+        input { flex: 1; padding: 15px; background: #1c2030; border: none; color: white; text-align: right; }
+        button { background: #1f5eff; color: white; border: none; padding: 0 25px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🛠️ لوحة تحكم المشرف - الوارد</h1>
-        <button class="btn-refresh" onclick="loadMessages()">🔄 تحديث الرسائل الواردة</button>
-        
-        <div id="messages-container">
-            <p id="no-msg" style="color: #848e9c;">لا توجد رسائل واردة من الأصدقاء حالياً.</p>
+
+    <h2 style="text-align:center;">👨‍💻 مركز تحكم المشرف المباشر</h2>
+
+    <div class="chat-container">
+        <div class="chat-header">المحادثات الواردة من المستخدمين</div>
+        <div class="messages" id="admin-messages">
+            <div style="color: #707a8a; text-align:center; font-size:12px;">بانتظار رسائل جديدة من المستخدمين...</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="admin-input" placeholder="اكتب ردك كمشرف هنا...">
+            <button onclick="sendAdminReply()">إرسال الرد</button>
         </div>
     </div>
 
     <script>
-        function loadMessages() {
-            fetch('/api/admin/messages')
-                .then(res => res.json())
-                .then(messages => {
-                    const container = document.getElementById('messages-container');
-                    if (messages.length === 0) {
-                        container.innerHTML = '<p id="no-msg" style="color: #848e9c;">لا توجد رسائل واردة من الأصدقاء حالياً.</p>';
-                        return;
-                    }
-                    container.innerHTML = '';
-                    messages.forEach(msg => {
-                        container.innerHTML += `
-                            <div class="msg-card">
-                                <span class="time">${msg.time}</span>
-                                <span class="sender">👤 من: ${msg.username}</span>
-                                <div class="text">${msg.message}</div>
-                            </div>
-                        `;
-                    });
+        // فحص رسائل المستخدمين كل ثانيتين تلقائياً
+        setInterval(fetchUserMessages, 2000);
+
+        function fetchUserMessages() {
+            fetch('/api/chat/get-updates?role=admin')
+            .then(res => res.json())
+            .then(messages => {
+                const container = document.getElementById('admin-messages');
+                messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = 'user-msg';
+                    div.innerText = `المستخدم: ${msg.text}`;
+                    container.appendChild(div);
+                    container.scrollTop = container.scrollHeight;
                 });
+            });
         }
-        // تحميل الرسائل تلقائياً عند فتح الصفحة
-        loadMessages();
+
+        function sendAdminReply() {
+            const input = document.getElementById('admin-input');
+            const text = input.value.trim();
+            if (text === '') return;
+
+            const container = document.getElementById('admin-messages');
+            const div = document.createElement('div');
+            div.className = 'admin-msg';
+            div.innerText = `أنا (المشرف): ${text}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+
+            // إرسال الرد المكتوب إلى السيرفر لتوصيله للمستخدم
+            fetch('/api/chat/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sender: 'admin', message: text })
+            });
+
+            input.value = '';
+        }
     </script>
 </body>
 </html>
-
