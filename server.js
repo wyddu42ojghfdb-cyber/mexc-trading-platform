@@ -1,46 +1,51 @@
 const express = require('express');
-const path = require('path');
-const cors = require('cors');
-
 const app = express();
-app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
 
-// قاعدة بيانات مؤقتة في الذاكرة للرسائل والأرصدة الافتراضية
-let usersDatabase = {
-    "user77": { username: "user77", balance: 50.00 }
-};
-let supportMessages = []; // مصفوفة لحفظ رسائل الأصدقاء
+// مخزن مؤقت لحفظ الرسائل المتبادلة بين الطرفين
+let chatHistory = [];
+let botActive = true; 
 
-// مسار للمشترك لإرسال رسالة دعم افتراضية
-app.post('/api/support/send', (req, res) => {
-    const { username, message } = req.body;
-    if (!message) return res.json({ success: false, message: "الرسالة فارغة" });
+// مسار استقبال وإرسال الرسائل
+app.post('/api/chat/send', (req, res) => {
+    const { sender, message } = req.body;
     
-    supportMessages.push({ id: supportMessages.length + 1, username, message, time: new Date().toLocaleTimeString() });
-    res.json({ success: true, message: "تم إرسال رسالتك إلى لوحة المشرف بنجاح!" });
+    // حفظ الرسالة في السجل لكي يراها الطرف الآخر
+    chatHistory.push({ sender, text: message, timestamp: Date.now(), read: false });
+
+    let botReply = null;
+
+    // إذا كان المجيب الآلي فعالاً وقام المستخدم بالكتابة
+    if (sender === 'user' && botActive) {
+        const msgLower = message.toLowerCase();
+        
+        if (msgLower.includes('أهلاً') || msgLower.includes('مرحبا')) {
+            botReply = "أهلاً بك! كيف يمكنني مساعدتك في التداول اليوم؟";
+        } else if (msgLower.includes('إيداع') || msgLower.includes('شحن')) {
+            botReply = "يمكنك الإيداع عبر الانتقال لقسم الإيداع الفوري واختيار عملة USDT.";
+        } else if (msgLower.includes('مشرف') || msgLower.includes('دعم') || msgLower.includes('إنسان')) {
+            botReply = "جاري تحويلك الآن للمشرف الحقيقي... يرجى الانتظار وكتابة استفسارك.";
+            botActive = false; // إيقاف البوت مؤقتاً ليتدخل المشرف يدوياً
+        }
+        
+        if (botReply) {
+            chatHistory.push({ sender: 'bot', text: botReply, timestamp: Date.now(), read: true });
+        }
+    }
+
+    res.json({ status: !botActive ? 'forwarded' : 'ok', botReply });
 });
 
-// مسار للمشرف لجلب كافة الرسائل الواردة وقراءتها
-app.get('/api/admin/messages', (req, res) => {
-    res.json(supportMessages);
-});
-
-// مسارات واجهة المستخدم والمسؤول
-app.get('/api/user/data', (req, res) => {
-    res.json(usersDatabase["user77"]);
-});
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Chat Simulation server active on port ${PORT}`);
+// مسار جلب الرسائل الجديدة (تحديث مستمر للطرفين)
+app.get('/api/chat/get-updates', (req, res) => {
+    const role = req.query.role; // user أو admin
+    let targetSender = role === 'admin' ? 'user' : 'admin';
+    
+    // جلب الرسائل غير المقروءة الموجهة لهذا الدور
+    let unreadMessages = chatHistory.filter(msg => msg.sender === targetSender && !msg.read);
+    
+    // تحويل الرسائل المجلوبة إلى مقروءة
+    unreadMessages.forEach(msg => msg.read = true);
+    
+    res.json(unreadMessages);
 });
