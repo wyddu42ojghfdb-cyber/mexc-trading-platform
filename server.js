@@ -7,21 +7,31 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// قاعدة بيانات مؤقتة وآمنة في الذاكرة لتجربة الأرصدة
+// قاعدة بيانات مؤقتة في الذاكرة للرسائل والأرصدة الافتراضية
 let usersDatabase = {
     "user77": { username: "user77", balance: 50.00 }
 };
+let supportMessages = []; // مصفوفة لحفظ رسائل الأصدقاء
 
-// مسارات واجهة برمجة التطبيقات (API) الخاصة بالمحاكاة
-app.get('/api/user/data', (req, res) => {
-    const username = req.query.username || 'user77';
-    if (!usersDatabase[username]) {
-        usersDatabase[username] = { username, balance: 0 };
-    }
-    res.json(usersDatabase[username]);
+// مسار للمشترك لإرسال رسالة دعم افتراضية
+app.post('/api/support/send', (req, res) => {
+    const { username, message } = req.body;
+    if (!message) return res.json({ success: false, message: "الرسالة فارغة" });
+    
+    supportMessages.push({ id: supportMessages.length + 1, username, message, time: new Date().toLocaleTimeString() });
+    res.json({ success: true, message: "تم إرسال رسالتك إلى لوحة المشرف بنجاح!" });
 });
 
-// فتح الواجهات البرمجية
+// مسار للمشرف لجلب كافة الرسائل الواردة وقراءتها
+app.get('/api/admin/messages', (req, res) => {
+    res.json(supportMessages);
+});
+
+// مسارات واجهة المستخدم والمسؤول
+app.get('/api/user/data', (req, res) => {
+    res.json(usersDatabase["user77"]);
+});
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -32,5 +42,5 @@ app.get('/admin', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Simulation server active on port ${PORT}`);
+    console.log(`Chat Simulation server active on port ${PORT}`);
 });
