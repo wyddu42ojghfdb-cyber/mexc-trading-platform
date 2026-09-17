@@ -1,74 +1,37 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة XXX للمحاكاة والتداول</title>
-    <!-- ربط ملف الـ PWA لتشغيل التطبيق عبر الرابط مباشرة -->
-    <link rel="manifest" href="/manifest.json">
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0b0e11; color: #eaedd1; text-align: center; margin: 0; padding: 15px; }
-        .container { max-width: 480px; margin: auto; background: #161a1e; padding: 20px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
-        h1 { color: #02c076; font-size: 24px; margin-bottom: 5px; }
-        .market-box { background: #202630; padding: 12px; border-radius: 8px; margin: 15px 0; font-size: 18px; color: #02c076; }
-        .balance-card { background: #1e2329; padding: 15px; border-radius: 12px; border-right: 5px solid #02c076; text-align: right; margin-bottom: 15px; }
-        .balance-val { font-size: 26px; font-weight: bold; color: #fff; }
-        .input-group { margin: 10px 0; text-align: right; }
-        label { font-size: 13px; color: #848e9c; }
-        input { width: 100%; padding: 10px; background: #2b3139; border: 1px solid #474d57; border-radius: 6px; color: white; box-sizing: border-box; margin-top: 5px; }
-        .btn { background: #02c076; color: #000; font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; font-size: 15px; }
-        .btn-withdraw { background: #f6465d; color: white; }
-        .notice { font-size: 11px; color: #848e9c; margin-top: 15px; border-top: 1px solid #2b3139; padding-top: 10px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>📊 منصة XXX التجريبية</h1>
-        <p style="color:#848e9c; font-size:13px;">لوحة محاكاة الأسعار والعمليات الافتراضية</p>
-
-        <!-- صندوق السعر الحي (سيتحدث تلقائياً) -->
-        <div class="market-box">
-            📈 سعر XLM/USDT الافتراضي: <span id="price-val">0.17838</span>
-        </div>
-
-        <div class="balance-card">
-            <span style="color:#848e9c; font-size:13px;">الرصيد التجريبي الحالي</span>
-            <div id="balance-display" class="balance-val">\$50.00</div>
-        </div>
-
-        <!-- قسم عمليات المحاكاة -->
-        <div class="input-group">
-            <label>طلب إيداع تجريبي (نقاط وهمية)</label>
-            <input type="number" id="dep-amount" placeholder="أدخل الكمية الافتراضية للطلب">
-            <button class="btn" onclick="actionSimulate('deposit')">🚀 إرسال طلب إيداع للمشرف</button>
-        </div>
-
-        <div class="input-group" style="margin-top: 20px;">
-            <label>طلب استرداد/سحب نقاط تجريبية</label>
-            <input type="number" id="with-amount" placeholder="أدخل النقاط المراد استردادها">
-            <button class="btn btn-withdraw" onclick="actionSimulate('withdraw')">💰 تقديم طلب استرداد للمشرف</button>
-        </div>
-
-        <p class="notice">⚠️ هذا التطبيق هو واجهة محاكاة واختبار برمجية مغلقة وخاصة، ولا يتعامل مع أي أموال أو محافظ أو معاملات حقيقية مطلقاً.</p>
+<!-- قسم الإيداع الحقيقي الجديد -->
+<div style="background-color: #1a1a1a; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; text-align: center;">
+    <h3 style="color: #fff; margin-bottom: 10px;">💳 إيداع USDT الحقيقي</h3>
+    <p style="color: #aaa; font-size: 14px; margin-bottom: 15px;">يرجى التحويل عبر شبكة <strong>TRON (TRC-20)</strong> حصراً:</p>
+    
+    <!-- عرض عنوان المحفظة الخاص بك -->
+    <div style="background-color: #111; padding: 12px; border-radius: 6px; border: 1px dashed #555; word-break: break-all; color: #00ffcc; font-family: monospace; font-size: 15px; margin-bottom: 15px;" id="walletAddress">
+        TA1vsgrJEFy3YM6rkQWBppnZemFE6c9pBN
     </div>
 
-    <script>
-        // تحديث الرصيد والسعر من السيرفر
-        function updateData() {
-            fetch('/api/user/data?username=user77')
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('balance-display').innerText = `$${data.balance.toFixed(2)}`;
-                });
-        }
-        setInterval(updateData, 3000); // تحديث فوري كل 3 ثوانٍ
+    <!-- زر نسخ العنوان بضغطة واحدة -->
+    <button onclick="copyWalletAddress()" style="background-color: #00ffcc; color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px;">
+        📋 نسخ عنوان المحفظة
+    </button>
+</div>
 
-        function actionSimulate(type) {
-            const amount = type === 'deposit' ? document.getElementById('dep-amount').value : document.getElementById('with-amount').value;
-            if(!amount) return alert('الرجاء إدخال الكمية الافتراضية للمحاكاة');
-            
-            alert(`تم إرسال طلب الـ ${type === 'deposit' ? 'إيداع' : 'استرداد'} التجريبي بقيمة ${amount} إلى لوحة المشرف أونلاين بنجاح.`);
-        }
-    </script>
-</body>
-</html>
+<!-- كود الجافا سكريبت الخاص بالنسخ وتنبيه المستخدم -->
+<script>
+function copyWalletAddress() {
+    // جلب النص الخاص بالعنوان
+    const addressText = document.getElementById("walletAddress").innerText.trim();
+    
+    // استخدام كليببورد لنسخ النص
+    navigator.clipboard.writeText(addressText).then(() => {
+        alert("✅ تم نسخ عنوان المحفظة بنجاح!");
+    }).catch(err => {
+        // طريقة احتياطية في حال لم يدعم المتصفح الخاص بالهاتف الأمر المباشر
+        const el = document.createElement('textarea');
+        el.value = addressText;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        alert("✅ تم نسخ عنوان المحفظة بنجاح!");
+    });
+}
+</script>
