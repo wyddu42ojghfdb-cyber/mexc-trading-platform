@@ -1,18 +1,49 @@
-<!-- قسم الإيداع الحقيقي المطور بألوان واضحة -->
-<div style="background-color: #1a1a1a; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; text-align: center;">
-    <!-- تعديل اللون هنا إلى الأبيض الكامل #ffffff -->
-    <h3 style="color: #ffffff; margin-bottom: 10px; font-size: 18px; font-weight: bold;">💳 إيداع USDT الحقيقي</h3>
+<!-- زر الإيداع الفوري الأصلي مع دمج المحفظة الحقيقية -->
+<div style="text-align: center; margin-bottom: 15px;">
+    <button onclick="toggleDepositSection()" style="background-color: #2ecc71; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 48%; display: inline-block;">
+        📥 إيداع فوري
+    </button>
     
-    <!-- تعديل اللون هنا إلى الرمادي الفاتح الواضح #dddddd -->
-    <p style="color: #dddddd; font-size: 14px; margin-bottom: 15px;">يرجى التحويل عبر شبكة <strong style="color: #00ffcc;">TRON (TRC-20)</strong> حصراً:</p>
-    
-    <!-- عرض عنوان المحفظة الخاص بك -->
-    <div style="background-color: #111; padding: 12px; border-radius: 6px; border: 1px dashed #555; word-break: break-all; color: #00ffcc; font-family: monospace; font-size: 15px; margin-bottom: 15px;" id="walletAddress">
-        TA1vsgrJEFy3YM6rkQWBppnZemFE6c9pBN
-    </div>
-
-    <!-- زر نسخ العنوان بضغطة واحدة -->
-    <button onclick="copyWalletAddress()" style="background-color: #00ffcc; color: #000; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px;">
-        📋 نسخ عنوان المحفظة
+    <!-- زر طلب السحب الأصلي بجانبه كما كان -->
+    <button style="background-color: #e74c3c; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 48%; display: inline-block;">
+        📤 طلب سحب
     </button>
 </div>
+
+<!-- قسم مخفي يظهر فقط عند ضغط أصدقائك على زر "إيداع فوري" -->
+<div id="realDepositSection" style="display: none; background-color: #1c1c1e; padding: 15px; border-radius: 8px; border: 1px solid #2ecc71; margin-top: 10px; text-align: center;">
+    <p style="color: #ffffff; font-size: 14px; margin-bottom: 8px;">حرك أموالك عبر شبكة <strong style="color: #2ecc71;">TRON (TRC-20)</strong>:</p>
+    <div id="walletAddress" style="background-color: #000; color: #2ecc71; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 14px; word-break: break-all; margin-bottom: 10px;">
+        TA1vsgrJEFy3YM6rkQWBppnZemFE6c9pBN
+    </div>
+    <button onclick="copyWalletAddress()" style="background-color: #2ecc71; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer;">
+        📋 نسخ العنوان
+    </button>
+</div>
+
+<!-- السكريبت البرمجي للتحكم بالظهور والنسخ -->
+<script>
+function toggleDepositSection() {
+    var section = document.getElementById("realDepositSection");
+    if (section.style.display === "none") {
+        section.style.display = "block";
+    } else {
+        section.style.display = "none";
+    }
+}
+
+function copyWalletAddress() {
+    const addressText = document.getElementById("walletAddress").innerText.trim();
+    navigator.clipboard.writeText(addressText).then(() => {
+        alert("✅ تم نسخ عنوان محفظة TRC-20 بنجاح!");
+    }).catch(err => {
+        const el = document.createElement('textarea');
+        el.value = addressText;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        alert("✅ تم نسخ عنوان محفظة TRC-20 بنجاح!");
+    });
+}
+</script>
