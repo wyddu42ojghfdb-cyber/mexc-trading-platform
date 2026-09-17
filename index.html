@@ -1,7 +1,10 @@
-<!-- قسم الإيداع الحقيقي الجديد -->
+<!-- قسم الإيداع الحقيقي المطور بألوان واضحة -->
 <div style="background-color: #1a1a1a; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; text-align: center;">
-    <h3 style="color: #fff; margin-bottom: 10px;">💳 إيداع USDT الحقيقي</h3>
-    <p style="color: #aaa; font-size: 14px; margin-bottom: 15px;">يرجى التحويل عبر شبكة <strong>TRON (TRC-20)</strong> حصراً:</p>
+    <!-- تعديل اللون هنا إلى الأبيض الكامل #ffffff -->
+    <h3 style="color: #ffffff; margin-bottom: 10px; font-size: 18px; font-weight: bold;">💳 إيداع USDT الحقيقي</h3>
+    
+    <!-- تعديل اللون هنا إلى الرمادي الفاتح الواضح #dddddd -->
+    <p style="color: #dddddd; font-size: 14px; margin-bottom: 15px;">يرجى التحويل عبر شبكة <strong style="color: #00ffcc;">TRON (TRC-20)</strong> حصراً:</p>
     
     <!-- عرض عنوان المحفظة الخاص بك -->
     <div style="background-color: #111; padding: 12px; border-radius: 6px; border: 1px dashed #555; word-break: break-all; color: #00ffcc; font-family: monospace; font-size: 15px; margin-bottom: 15px;" id="walletAddress">
@@ -9,29 +12,7 @@
     </div>
 
     <!-- زر نسخ العنوان بضغطة واحدة -->
-    <button onclick="copyWalletAddress()" style="background-color: #00ffcc; color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px;">
+    <button onclick="copyWalletAddress()" style="background-color: #00ffcc; color: #000; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px;">
         📋 نسخ عنوان المحفظة
     </button>
 </div>
-
-<!-- كود الجافا سكريبت الخاص بالنسخ وتنبيه المستخدم -->
-<script>
-function copyWalletAddress() {
-    // جلب النص الخاص بالعنوان
-    const addressText = document.getElementById("walletAddress").innerText.trim();
-    
-    // استخدام كليببورد لنسخ النص
-    navigator.clipboard.writeText(addressText).then(() => {
-        alert("✅ تم نسخ عنوان المحفظة بنجاح!");
-    }).catch(err => {
-        // طريقة احتياطية في حال لم يدعم المتصفح الخاص بالهاتف الأمر المباشر
-        const el = document.createElement('textarea');
-        el.value = addressText;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        alert("✅ تم نسخ عنوان المحفظة بنجاح!");
-    });
-}
-</script>
