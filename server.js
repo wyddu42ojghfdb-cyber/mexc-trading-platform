@@ -1,51 +1,66 @@
 const express = require('express');
+const path = require('path');
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// تفعيل قراءة البيانات القادمة من الواجهات
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// مخزن مؤقت لحفظ الرسائل المتبادلة بين الطرفين
-let chatHistory = [];
-let botActive = true; 
+// تشغيل وخدمة الملفات الأصلية والتكوينات الخاصة بالسكربت (Assets, CSS, Images)
+app.use(express.static(path.join(__dirname)));
+app.use('/التكوين', express.static(path.join(__dirname, 'التكوين')));
 
-// مسار استقبال وإرسال الرسائل
-app.post('/api/chat/send', (req, res) => {
-    const { sender, message } = req.body;
-    
-    // حفظ الرسالة في السجل لكي يراها الطرف الآخر
-    chatHistory.push({ sender, text: message, timestamp: Date.now(), read: false });
+// ==========================================================
+// 📥 نضام المراسلة المدمج (تخزين طلبات الإيداع والسحب لملف المشرف)
+// ==========================================================
+let userRequests = []; 
+let userBalances = {};
 
-    let botReply = null;
+// 1. مسار استقبال طلبات الإيداع والسحب من واجهة المستخدم الأصلية
+app.post('/api/submit-request', (req, res) => {
+    const { userId, type, amount } = req.body;
 
-    // إذا كان المجيب الآلي فعالاً وقام المستخدم بالكتابة
-    if (sender === 'user' && botActive) {
-        const msgLower = message.toLowerCase();
+    const newRequest = {
+        id: Date.now(),
+        userId: userId || "مستخدم تجريبي",
+        type: type, // 'deposit' أو 'withdraw'
+        amount: parseFloat(amount) || 0,
+        status: "pending", // معلق في انتظارك
+        date: new Date().toLocaleString('ar-EG')
+    };
+
+    userRequests.push(newRequest);
+    console.log("📥 تم استقبال طلب جديد للمشرف:", newRequest);
+
+    res.json({ success: true, message: "تم إرسال الطلب بنجاح، بانتظار موافقة المشرف." });
+});
+
+// 2. مسار جلب الطلبات لواجهة المشرف المستقلة (admin.html)
+app.get('/api/admin/get-requests', (req, res) => {
+    res.json(userRequests);
+});
+
+// 3. مسار اتخاذ القرار من واجهة المشرف (موافقة / رفض) وتحديث رصيد الصفقات
+app.post('/api/admin/action', (req, res) => {
+    const { requestId, action } = req.body;
+    const requestIndex = userRequests.findIndex(r => r.id === parseInt(requestId));
+
+    if (requestIndex !== -1) {
+        userRequests[requestIndex].status = action === 'approve' ? "approved" : "rejected";
         
-        if (msgLower.includes('أهلاً') || msgLower.includes('مرحبا')) {
-            botReply = "أهلاً بك! كيف يمكنني مساعدتك في التداول اليوم؟";
-        } else if (msgLower.includes('إيداع') || msgLower.includes('شحن')) {
-            botReply = "يمكنك الإيداع عبر الانتقال لقسم الإيداع الفوري واختيار عملة USDT.";
-        } else if (msgLower.includes('مشرف') || msgLower.includes('دعم') || msgLower.includes('إنسان')) {
-            botReply = "جاري تحويلك الآن للمشرف الحقيقي... يرجى الانتظار وكتابة استفسارك.";
-            botActive = false; // إيقاف البوت مؤقتاً ليتدخل المشرف يدوياً
+        if (action === 'approve') {
+            const currentReq = userRequests[requestIndex];
+            if (!userBalances[currentReq.userId]) userBalances[currentReq.userId] = 0;
+            
+            // زيادة أو خصم رصيد المستخدم بناءً على موافقتك
+            if (currentReq.type === 'deposit') {
+                userBalances[currentReq.userId] += currentReq.amount;
+            } else {
+                userBalances[currentReq.userId] -= currentReq.amount;
+            }
         }
-        
-        if (botReply) {
-            chatHistory.push({ sender: 'bot', text: botReply, timestamp: Date.now(), read: true });
-        }
+        return res.json({ success: true, message: "تم تحديث الطلب بنجاح في النظام." });
     }
-
-    res.json({ status: !botActive ? 'forwarded' : 'ok', botReply });
-});
-
-// مسار جلب الرسائل الجديدة (تحديث مستمر للطرفين)
-app.get('/api/chat/get-updates', (req, res) => {
-    const role = req.query.role; // user أو admin
-    let targetSender = role === 'admin' ? 'user' : 'admin';
+    res.status(404).json({ success: false, message: "الطلب غير موجود." });
     
-    // جلب الرسائل غير المقروءة الموجهة لهذا الدور
-    let unreadMessages = chatHistory.filter(msg => msg.sender === targetSender && !msg.read);
-    
-    // تحويل الرسائل المجلوبة إلى مقروءة
-    unreadMessages.forEach(msg => msg.read = true);
-    
-    res.json(unreadMessages);
-});
