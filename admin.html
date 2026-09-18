@@ -2,74 +2,124 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة المشرف - إدارة المحادثات</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Trading Bot - Admin Hub</title>
     <style>
-        body { background: #131722; color: white; font-family: sans-serif; padding: 20px; }
-        .chat-container { max-width: 500px; margin: 0 auto; background: #1c2030; border-radius: 8px; overflow: hidden; border: 1px solid #2a2e39; }
-        .chat-header { background: #1f5eff; padding: 15px; font-weight: bold; text-align: center; }
-        .messages { height: 300px; padding: 15px; overflow-y: auto; background: #131722; display: flex; flex-direction: column; gap: 10px; }
-        .user-msg { background: #02c076; align-self: flex-start; padding: 8px 12px; border-radius: 4px; max-width: 80%; }
-        .admin-msg { background: #1f5eff; align-self: flex-end; padding: 8px 12px; border-radius: 4px; max-width: 80%; }
-        .input-area { display: flex; border-top: 1px solid #2a2e39; }
-        input { flex: 1; padding: 15px; background: #1c2030; border: none; color: white; text-align: right; }
-        button { background: #1f5eff; color: white; border: none; padding: 0 25px; cursor: pointer; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #0b1426; color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .admin-container { width: 100%; max-width: 400px; background-color: #2c1a30; border: 2px solid #8b5cf6; border-radius: 20px; padding: 20px; box-sizing: border-box; margin-bottom: 20px; }
+        h1 { text-align: center; color: #f472b6; font-size: 22px; }
+        button { width: 100%; padding: 14px; border: none; border-radius: 10px; background-color: #a855f7; color: white; font-weight: bold; cursor: pointer; font-size: 15px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #6b21a8; background-color: #152238; color: white; box-sizing: border-box; }
+        .request-card { background-color: #1c1917; border-radius: 12px; padding: 15px; margin-top: 15px; font-size: 13px; border: 1px solid; }
+        .action-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-approve { background-color: #22c55e; padding: 8px; border-radius: 6px; border: none; color: white; font-weight: bold; width: 50%; cursor: pointer; }
+        .btn-reject { background-color: #ef4444; padding: 8px; border-radius: 6px; border: none; color: white; font-weight: bold; width: 50%; cursor: pointer; }
+        .no-reqs { text-align: center; color: #a8a29e; font-style: italic; font-size: 13px; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align:center;">👨‍💻 مركز تحكم المشرف المباشر</h2>
-
-    <div class="chat-container">
-        <div class="chat-header">المحادثات الواردة من المستخدمين</div>
-        <div class="messages" id="admin-messages">
-            <div style="color: #707a8a; text-align:center; font-size:12px;">بانتظار رسائل جديدة من المستخدمين...</div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="admin-input" placeholder="اكتب ردك كمشرف هنا...">
-            <button onclick="sendAdminReply()">إرسال الرد</button>
-        </div>
+<div class="admin-container">
+    <h1>🔐 لوحة التحكم الرئيسية وتفعيل الأرباح</h1>
+    <div class="input-group">
+        <label>أدخل كلمة مرور المشرف للحماية:</label>
+        <input type="password" id="adminPass" placeholder="******">
     </div>
+    <button onclick="runAdminTradeRender()">🚀 تشغيل الصفقة وتوزيع أرباح 15% حياً</button>
+</div>
 
-    <script>
-        // فحص رسائل المستخدمين كل ثانيتين تلقائياً
-        setInterval(fetchUserMessages, 2000);
+<div class="admin-container" style="border-color: #22c55e;">
+    <h1>📥 إدارة طلبات الإيداع الواردة (شحن الحسابات)</h1>
+    <div id="depositList"></div>
+    <div id="noDeposits" class="no-reqs">لا توجد طلبات إيداع حقيقية معلقة حالياً.</div>
+</div>
 
-        function fetchUserMessages() {
-            fetch('/api/chat/get-updates?role=admin')
-            .then(res => res.json())
-            .then(messages => {
-                const container = document.getElementById('admin-messages');
-                messages.forEach(msg => {
-                    const div = document.createElement('div');
-                    div.className = 'user-msg';
-                    div.innerText = `المستخدم: ${msg.text}`;
-                    container.appendChild(div);
-                    container.scrollTop = container.scrollHeight;
-                });
-            });
-        }
+<div class="admin-container" style="border-color: #ea580c;">
+    <h1>📤 إدارة طلبات السحب الواردة (صرف الأموال)</h1>
+    <div id="requestsList"></div>
+    <div id="noRequests" class="no-reqs">لا توجد طلبات سحب معلقة حالياً.</div>
+</div>
 
-        function sendAdminReply() {
-            const input = document.getElementById('admin-input');
-            const text = input.value.trim();
-            if (text === '') return;
+<script>
+    const RENDER_SERVER = "https://onrender.com";
 
-            const container = document.getElementById('admin-messages');
-            const div = document.createElement('div');
-            div.className = 'admin-msg';
-            div.innerText = `أنا (المشرف): ${text}`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
+    window.onload = function() {
+        // تحديث وفحص الطلبات الحقيقية القادمة من السيرفر السحابي كل 3 ثوانٍ
+        setInterval(fetchAdminDataFromRender, 3000);
+    }
 
-            // إرسال الرد المكتوب إلى السيرفر لتوصيله للمستخدم
-            fetch('/api/chat/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sender: 'admin', message: text })
-            });
+    function fetchAdminDataFromRender() {
+        fetch(`${RENDER_SERVER}/admin/run-trade-button`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({check: "true"}) })
+        .then(res => res.json())
+        .then(data => {
+            if(data && data.pending_user) {
+                if(data.type === "deposit") {
+                    document.getElementById("noDeposits").style.display = "none";
+                    document.getElementById("depositList").innerHTML = `
+                        <div class="request-card" style="border-color: #22c55e;">
+                            <p>👤 اسم المشترك الطالب: <strong style="color:#00ffd0;">${data.pending_user}</strong></p>
+                            <p>💵 المبلغ المطلوب إيداعه: <strong style="color: #4ade80;">\$${data.amount}.00 حقيقي</strong></p>
+                            <div class="action-btns">
+                                <button class="btn-approve" onclick="approveDepositRender('${data.pending_user}')">✓ موافقة وشحن الحساب</button>
+                                <button class="btn-reject" onclick="rejectDepositRender('${data.pending_user}')">✕ رفض الطلب</button>
+                            </div>
+                        </div>`;
+                } else if(data.type === "withdraw") {
+                    document.getElementById("noRequests").style.display = "none";
+                    document.getElementById("requestsList").innerHTML = `
+                        <div class="request-card" style="border-color: #ea580c;">
+                            <p>👤 اسم المستخدم: <strong style="color:#00ffd0;">${data.pending_user}</strong></p>
+                            <p>💵 المبلغ المطلوب سحبه: <strong style="color: #ef4444;">\$${data.amount}.00</strong></p>
+                            <p>💼 محفظة المستلم المستهدفة:<br><span style="color:#e2e8f0; font-size:11px; word-break:break-all;">${data.wallet}</span></p>
+                            <div class="action-btns">
+                                <button class="btn-approve" onclick="approveWithdrawRender('${data.pending_user}')">✓ موافقة وإرسال</button>
+                                <button class="btn-reject" onclick="rejectWithdrawRender('${data.pending_user}')">✕ رفض وإلغاء</button>
+                            </div>
+                        </div>`;
+                }
+            } else {
+                document.getElementById("noDeposits").style.display = "block"; document.getElementById("depositList").innerHTML = "";
+                document.getElementById("noRequests").style.display = "block"; document.getElementById("requestsList").innerHTML = "";
+            }
+        });
+    }
 
-            input.value = '';
-        }
-    </script>
+    function approveDepositRender(user) {
+        fetch(`${RENDER_SERVER}/admin/run-trade-button`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username: user, action: "approve_deposit" })
+        }).then(() => alert("✅ تم الموافقة وشحن حساب المشترك بالرصيد الحقيقي سحابياً عبر سيرفر Render!"));
+    }
+
+    function rejectDepositRender(user) {
+        fetch(`${RENDER_SERVER}/admin/run-trade-button`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username: user, action: "reject_deposit" }) });
+    }
+
+    function runAdminTradeRender() {
+        const pass = document.getElementById("adminPass").value;
+        if(pass !== "123456") { alert("كلمة مرور المشرف غير صحيحة!"); return; }
+
+        fetch(`${RENDER_SERVER}/admin/run-trade-button`, { method: 'POST' })
+        .then(res => res.json())
+        .then(() => {
+            alert(`🔥 نجاح تشغيل الصفقة الحية وسيرفر Render قام بتوزيع أرباح الـ 15% للمودعين فقط بنجاح!`);
+        });
+    }
+
+    function approveWithdrawRender(user) {
+        fetch(`${RENDER_SERVER}/admin/run-trade-button`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username: user, action: "approve_withdraw" })
+        }).then(() => alert("✓ تم تفعيل السحب بنجاح وخصمه من رصيد السيرفر حياً."));
+    }
+
+    function rejectWithdrawRender(user) {
+        fetch(`${RENDER_SERVER}/admin/run-trade-button`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username: user, action: "reject_withdraw" }) });
+    }
+</script>
 </body>
 </html>
